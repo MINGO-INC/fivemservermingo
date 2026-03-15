@@ -38,19 +38,33 @@ The script fetches the latest version number from the FiveM API, downloads
 Requirements: PowerShell 5+ (built into Windows 10/11) and
 [Git for Windows](https://git-scm.com/download/win).
 
+**Linux / macOS (automated):**  
+Run the included setup script — it handles steps 2 **and** 3 for you:
+
+```bash
+chmod +x setup.sh
+./setup.sh
+```
+
+The script fetches the latest version number from the FiveM API, downloads
+`server.tar.xz`, extracts `FXServer` into this directory, then clones
+`cfx-server-data` and merges the default resources.
+
+Requirements: `curl`, `tar`, and `git` (all pre-installed on most systems).
+
 **Windows (manual):**  
 Download the latest `FXServer.exe` from the
 [Windows artifacts page](https://runtime.fivem.net/artifacts/fivem/build_server_windows/master/)
 and place it in this directory.
 
-**Linux:**
+**Linux (manual):**
 ```bash
 # 1. Fetch the latest version number
 LATEST_VERSION=$(curl -s https://changelogs-live.fivem.net/api/changelog/versions/linux/server \
   | python3 -c "import sys, json; print(json.load(sys.stdin)['latest'])")
 
 # 2. Download that version
-wget -O fx.tar.xz \
+curl -Lo fx.tar.xz \
   "https://runtime.fivem.net/artifacts/fivem/build_proot_linux/master/${LATEST_VERSION}/server.tar.xz"
 
 # 3. Extract the archive
@@ -62,6 +76,11 @@ tar xf fx.tar.xz
 **Windows (automated):**  
 `setup.bat` (from step 2) handles this automatically — it clones
 `cfx-server-data` and merges the default resources into `resources\` without
+overwriting any existing custom resource folders.
+
+**Linux / macOS (automated):**  
+`setup.sh` (from step 2) handles this automatically — it clones
+`cfx-server-data` and merges the default resources into `resources/` without
 overwriting any existing custom resource folders.
 
 **Linux / macOS (or Windows manual):**
@@ -105,6 +124,8 @@ fivemservermingo/
 ├── server.cfg            # Main server configuration
 ├── run.sh                # Linux/macOS startup script
 ├── run.bat               # Windows startup script
+├── setup.sh              # Linux/macOS one-time setup (steps 2 & 3)
+├── setup.bat             # Windows one-time setup (steps 2 & 3)
 └── resources/
     ├── [gamemodes]/      # Gamemode resources (basic-gamemode, maps)
     ├── [gameplay]/       # Custom gameplay scripts
