@@ -25,6 +25,24 @@ cd fivemservermingo
 
 ### 2. Download the FiveM server binary
 
+**Windows (automated):**  
+Run the included setup script — it handles steps 2 **and** 3 for you:
+
+```bat
+setup.bat
+```
+
+The script fetches the latest version number from the FiveM API, downloads
+`server.zip`, and extracts `FXServer.exe` into this directory.
+
+Requirements: PowerShell 5+ (built into Windows 10/11) and
+[Git for Windows](https://git-scm.com/download/win).
+
+**Windows (manual):**  
+Download the latest `FXServer.exe` from the
+[Windows artifacts page](https://runtime.fivem.net/artifacts/fivem/build_server_windows/master/)
+and place it in this directory.
+
 **Linux:**
 ```bash
 # 1. Fetch the latest version number
@@ -39,11 +57,14 @@ wget -O fx.tar.xz \
 tar xf fx.tar.xz
 ```
 
-**Windows:**  
-Download the latest `FXServer.exe` from the [Windows artifacts page](https://runtime.fivem.net/artifacts/fivem/build_server_windows/master/) and place it in this directory.
-
 ### 3. Download the default server data
 
+**Windows (automated):**  
+`setup.bat` (from step 2) handles this automatically — it clones
+`cfx-server-data` and merges the default resources into `resources\` without
+overwriting any existing custom resource folders.
+
+**Linux / macOS (or Windows manual):**
 ```bash
 git clone https://github.com/citizenfx/cfx-server-data.git
 
