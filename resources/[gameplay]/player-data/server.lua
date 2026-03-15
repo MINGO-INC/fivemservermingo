@@ -74,6 +74,25 @@ local function storeIdentifiers(playerIdx, newId)
     end
 end
 
+-- syncs a player record (id + identifiers) to Supabase asynchronously
+local function syncPlayerToSupabase(playerIdx, playerId)
+    local ok, supabase = pcall(function() return exports['supabase'] end)
+    if not ok or not supabase then return end
+
+    local identifiers = {}
+    for _, identifier in ipairs(GetPlayerIdentifiers(playerIdx)) do
+        if not isIdentifierBlocked(identifier) then
+            table.insert(identifiers, identifier)
+        end
+    end
+
+    supabase:Upsert('players', {
+        id          = playerId,
+        identifiers = identifiers,
+        last_seen   = os.date('!%Y-%m-%dT%H:%M:%SZ'),
+    })
+end
+
 -- registers a new player (increments sequence, stores data, returns ID)
 local function registerPlayer(playerIdx)
     local newId = incrementId()
@@ -121,6 +140,9 @@ local function setupPlayer(playerIdx)
     }
 
     playersById[tostring(playerId)] = playerIdx
+
+    -- sync to Supabase (async, non-blocking)
+    syncPlayerToSupabase(playerIdx, playerId)
 end
 
 -- we want to add a player pretty early
