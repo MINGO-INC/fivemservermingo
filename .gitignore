@@ -1,10 +1,13 @@
 # FiveM server binary and runtime files
 FXServer
 FXServer.exe
+FXServer.zip
 *.so
 *.dll
 *.dylib
 citizen/
+# Default server data (cloned by setup.bat / step 3)
+cfx-server-data/
 # Log files
 *.log
 server.log
