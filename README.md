@@ -100,6 +100,41 @@ fivemservermingo/
 
 ---
 
+## Custom Resources
+
+### car-spawner
+
+Located at `resources/[gameplay]/car-spawner/`.
+
+Lets players spawn a curated set of high-quality vehicles and delete them on demand.
+
+| Command | Description |
+|---------|-------------|
+| `/car <model>` | Spawn a car by model name (e.g. `/car zentorno`) |
+| `/dv` | Delete the vehicle you are currently sitting in |
+| `/cars` | List all allowed car models in chat |
+
+**Available models:** adder, entityxf, infernus, osiris, t20, zentorno, cheetah, turismor, fmj, reaper, sultan, jester, elegy2, comet2, feltzer2, carbonizzare, dominator, gauntlet, vigero, cognoscenti, supervolito, jackal, akuma, bati, shotaro.
+
+---
+
+### weapon-loadout
+
+Located at `resources/[gameplay]/weapon-loadout/`.
+
+Gives players a full weapon loadout and applies per-weapon **recoil** using camera shake proportional to each weapon's power.
+
+| Command | Description |
+|---------|-------------|
+| `/weapons` | Receive the complete loadout (all weapons + ammo) |
+| `/gun <name>` | Receive a single weapon by name or label (e.g. `/gun ak47`, `/gun sniper rifle`) |
+| `/guns` | List all available weapons grouped by category |
+| `/recoil` | Toggle recoil camera shake on / off |
+
+**Recoil system:** A per-frame client thread monitors clip ammo. When a shot is detected, it triggers a `ShakeGameplayCam` call scaled to the weapon's recoil value — light for pistols, heavy for snipers and launchers.
+
+---
+
 ## Useful Links
 
 - [FiveM Server Documentation](https://docs.fivem.net/docs/server-manual/setting-up-a-server/)
