@@ -1,0 +1,16 @@
+# FiveM server binary and runtime files
+FXServer
+FXServer.exe
+*.so
+*.dll
+*.dylib
+citizen/
+# Log files
+*.log
+server.log
+# Cache / temp directories
+cache/
+citizen/system_resources/
+# OS files
+.DS_Store
+Thumbs.db
