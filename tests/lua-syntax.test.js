@@ -78,6 +78,12 @@ function writeTempLua(content) {
   return tmp;
 }
 
+/** Detect whether `luac` is available on PATH. */
+const LUAC_AVAILABLE = (() => {
+  const result = spawnSync('luac', ['-v'], { encoding: 'utf8' });
+  return !result.error && result.status !== null;
+})();
+
 /** Run luac -p on a file; returns { ok, error }. */
 function luacCheck(filePath) {
   const result = spawnSync('luac', ['-p', filePath], { encoding: 'utf8' });
@@ -95,7 +101,7 @@ describe('Lua syntax', () => {
   for (const file of luaFiles) {
     const label = path.relative(REPO_ROOT, file);
 
-    test(label, () => {
+    test(label, { skip: !LUAC_AVAILABLE && 'luac is not installed' }, () => {
       const source = fs.readFileSync(file, 'utf8');
       const processed = preprocessFiveMExtensions(source);
 
