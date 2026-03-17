@@ -15,9 +15,12 @@
  *  • All range values are positive floats
  *  • No duplicate item names in EMS_ITEMS
  *  • EMS_ITEM_BY_NAME and EMS_ITEM_BY_LABEL lookup maps are built from EMS_ITEMS
+ *  • HOSPITAL_LOCATIONS table is present and non-empty with name/x/y/z fields
+ *  • TRIAGE_LEVELS table is present and non-empty
  *  • emsOnDuty flag is defined and defaults to false
- *  • The /emsduty, /revive, /heal, and /ambulance commands are registered
- *  • server.lua registers ems:dutyChange, ems:logRevive, ems:logHeal, ems:logAmbulance events
+ *  • The /emsduty, /revive, /heal, /ambulance, /triage, and /stretcher commands are registered
+ *  • server.lua registers ems:dutyChange, ems:logRevive, ems:logHeal, ems:logAmbulance,
+ *    ems:logTriage, ems:logStretcher events
  *  • server.lua retrieves the player name for all events
  */
 
@@ -68,6 +71,35 @@ function extractRegisteredCommands(source) {
     commands.add(m[1]);
   }
   return commands;
+}
+
+/**
+ * Parse the HOSPITAL_LOCATIONS table from client.lua.
+ * Returns an array of objects: { name, x, y, z }
+ */
+function extractHospitalLocations(source) {
+  const tableMatch = source.match(/local\s+HOSPITAL_LOCATIONS\s*=\s*\{([\s\S]+?)\n\}/);
+  if (!tableMatch) return null;
+
+  const locations = [];
+  const entryRe   = /\{[^}]+\}/g;
+  for (const entry of tableMatch[1].matchAll(entryRe)) {
+    const block = entry[0];
+    const name  = (block.match(/name\s*=\s*["']([^"']+)["']/) || [])[1];
+    const x     = (block.match(/x\s*=\s*(-?[\d.]+)/)         || [])[1];
+    const y     = (block.match(/y\s*=\s*(-?[\d.]+)/)         || [])[1];
+    const z     = (block.match(/z\s*=\s*(-?[\d.]+)/)         || [])[1];
+
+    if (name) {
+      locations.push({
+        name,
+        x: x ? parseFloat(x) : undefined,
+        y: y ? parseFloat(y) : undefined,
+        z: z ? parseFloat(z) : undefined,
+      });
+    }
+  }
+  return locations.length > 0 ? locations : null;
 }
 
 // ── Tests ────────────────────────────────────────────────────────────────────
@@ -159,6 +191,53 @@ describe('ems', () => {
     });
   });
 
+  // ── HOSPITAL_LOCATIONS data table ────────────────────────────────────────
+
+  describe('HOSPITAL_LOCATIONS data table', () => {
+    const source    = fs.readFileSync(CLIENT_LUA, 'utf8');
+    const hospitals = extractHospitalLocations(source);
+
+    test('HOSPITAL_LOCATIONS table is present in client.lua', () => {
+      assert.ok(hospitals !== null, 'HOSPITAL_LOCATIONS table not found in client.lua');
+    });
+
+    test('HOSPITAL_LOCATIONS contains at least one entry', () => {
+      assert.ok(hospitals.length > 0, 'HOSPITAL_LOCATIONS list must not be empty');
+    });
+
+    test('every hospital has a non-empty name', () => {
+      const invalid = hospitals.filter(h => !h.name || h.name.trim() === '');
+      assert.deepEqual(invalid, [], 'Hospitals with empty name found');
+    });
+
+    test('every hospital has numeric x, y, z coordinates', () => {
+      const invalid = hospitals.filter(h => h.x === undefined || h.y === undefined || h.z === undefined);
+      assert.deepEqual(
+        invalid.map(h => h.name),
+        [],
+        `Hospitals missing coordinates: ${invalid.map(h => h.name).join(', ')}`
+      );
+    });
+  });
+
+  // ── TRIAGE_LEVELS data table ─────────────────────────────────────────────
+
+  describe('TRIAGE_LEVELS data table', () => {
+    const source = fs.readFileSync(CLIENT_LUA, 'utf8');
+
+    test('TRIAGE_LEVELS table is present in client.lua', () => {
+      assert.match(source, /local\s+TRIAGE_LEVELS\s*=\s*\{/, 'TRIAGE_LEVELS table not found in client.lua');
+    });
+
+    test('TRIAGE_LEVEL_BY_NAME lookup is built from TRIAGE_LEVELS', () => {
+      assert.match(
+        source,
+        /TRIAGE_LEVEL_BY_NAME\s*\[\s*t\.name\s*\]\s*=\s*t/,
+        'TRIAGE_LEVEL_BY_NAME should index each level by its name field'
+      );
+    });
+  });
+
   // ── Duty state ───────────────────────────────────────────────────────────
 
   describe('duty state', () => {
@@ -194,6 +273,14 @@ describe('ems', () => {
     test('/ambulance command is registered', () => {
       assert.ok(commands.has('ambulance'), 'RegisterCommand("ambulance", ...) not found');
     });
+
+    test('/triage command is registered', () => {
+      assert.ok(commands.has('triage'), 'RegisterCommand("triage", ...) not found');
+    });
+
+    test('/stretcher command is registered', () => {
+      assert.ok(commands.has('stretcher'), 'RegisterCommand("stretcher", ...) not found');
+    });
   });
 
   // ── Server-side event handling ───────────────────────────────────────────
@@ -226,6 +313,20 @@ describe('ems', () => {
       assert.ok(
         source.includes("'ems:logAmbulance'") || source.includes('"ems:logAmbulance"'),
         "RegisterNetEvent('ems:logAmbulance') not found in server.lua"
+      );
+    });
+
+    test('ems:logTriage event is registered', () => {
+      assert.ok(
+        source.includes("'ems:logTriage'") || source.includes('"ems:logTriage"'),
+        "RegisterNetEvent('ems:logTriage') not found in server.lua"
+      );
+    });
+
+    test('ems:logStretcher event is registered', () => {
+      assert.ok(
+        source.includes("'ems:logStretcher'") || source.includes('"ems:logStretcher"'),
+        "RegisterNetEvent('ems:logStretcher') not found in server.lua"
       );
     });
 

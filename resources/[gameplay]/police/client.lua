@@ -1,5 +1,5 @@
 -- police: client.lua
--- Commands: /policeduty, /cuff, /uncuff, /patrolcar, /spike
+-- Commands: /policeduty, /cuff, /uncuff, /patrolcar, /spike, /fine, /search, /backup
 
 -- Police duty state
 local policeOnDuty  = false
@@ -15,6 +15,19 @@ local POLICE_VEHICLES = {
     { model = "fbi2",     label = "FBI Tactical"       },
     { model = "sheriff",  label = "Sheriff Cruiser"    },
     { model = "sheriff2", label = "Sheriff SUV"        },
+    { model = "polmav",   label = "Police Maverick"    },
+    { model = "riot",     label = "Riot Van"           },
+    { model = "prison",   label = "Prison Bus"         },
+}
+
+-- Known police patrol zones around Los Santos
+local POLICE_PATROL_ZONES = {
+    { name = "LSPD Mission Row",    x = 441.1,   y = -982.0,  z = 30.7  },
+    { name = "LSPD Vinewood Hills", x = -448.6,  y = 601.3,   z = 88.7  },
+    { name = "Sandy Shores Sheriff",x = 1853.0,  y = 3686.2,  z = 34.3  },
+    { name = "Paleto Bay Sheriff",  x = -448.2,  y = 6008.4,  z = 31.7  },
+    { name = "Davis Police Post",   x = 366.9,   y = -1611.2, z = 29.3  },
+    { name = "Airport Security",    x = -1096.1, y = -2715.4, z = 13.8  },
 }
 
 -- Build a quick lookup by model name
@@ -170,4 +183,70 @@ RegisterCommand("spike", function(source, args, rawCommand)
 
     TriggerEvent("chat:addMessage", { color = {100, 220, 100}, args = {"[Police]", "Spike strip deployed."} })
     TriggerServerEvent('police:logSpike')
+end, false)
+
+-- /fine [amount] — issue a monetary fine to the nearest player
+RegisterCommand("fine", function(source, args, rawCommand)
+    if not policeOnDuty then
+        TriggerEvent("chat:addMessage", { color = {255, 80, 80}, args = {"[Police]", "You must be on police duty to issue a fine."} })
+        return
+    end
+
+    local amount = tonumber(args[1]) or 500
+    if amount < 1 then
+        TriggerEvent("chat:addMessage", { color = {255, 165, 0}, args = {"[Police]", "Fine amount must be at least $1."} })
+        return
+    end
+
+    local target = getNearestPlayer(5.0)
+    if not target then
+        TriggerEvent("chat:addMessage", { color = {255, 165, 0}, args = {"[Police]", "No player within range (5m) to fine."} })
+        return
+    end
+
+    TriggerEvent("chat:addMessage", {
+        color = {100, 220, 100},
+        args  = {"[Police]", ("Issued a $%d fine."):format(amount)},
+    })
+    TriggerServerEvent('police:logFine', GetPlayerServerId(target), amount)
+end, false)
+
+-- /search — search the nearest player for contraband
+RegisterCommand("search", function(source, args, rawCommand)
+    if not policeOnDuty then
+        TriggerEvent("chat:addMessage", { color = {255, 80, 80}, args = {"[Police]", "You must be on police duty to search a player."} })
+        return
+    end
+
+    local target = getNearestPlayer(3.0)
+    if not target then
+        TriggerEvent("chat:addMessage", { color = {255, 165, 0}, args = {"[Police]", "No player within search range (3m)."} })
+        return
+    end
+
+    local contraband = { "drugs", "illegal weapon", "stolen goods", "nothing" }
+    local found      = contraband[math.random(#contraband)]
+
+    TriggerEvent("chat:addMessage", {
+        color = {100, 220, 100},
+        args  = {"[Police]", ("Search complete — found: %s."):format(found)},
+    })
+    TriggerServerEvent('police:logSearch', GetPlayerServerId(target), found)
+end, false)
+
+-- /backup — broadcast an officer backup request
+RegisterCommand("backup", function(source, args, rawCommand)
+    if not policeOnDuty then
+        TriggerEvent("chat:addMessage", { color = {255, 80, 80}, args = {"[Police]", "You must be on police duty to call for backup."} })
+        return
+    end
+
+    local ped    = PlayerPedId()
+    local coords = GetEntityCoords(ped)
+
+    TriggerEvent("chat:addMessage", {
+        color = {255, 100, 0},
+        args  = {"[Police]", ("BACKUP REQUESTED at %.1f, %.1f!"):format(coords.x, coords.y)},
+    })
+    TriggerServerEvent('police:logBackup', coords.x, coords.y, coords.z)
 end, false)

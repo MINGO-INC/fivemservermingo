@@ -13,9 +13,13 @@
  *  • All labels are non-empty strings
  *  • No duplicate model names in POLICE_VEHICLES
  *  • POLICE_VEHICLE_BY_MODEL lookup map is built from POLICE_VEHICLES
+ *  • POLICE_PATROL_ZONES table is present and non-empty
+ *  • Every patrol zone has name, x, y, z fields
  *  • policeOnDuty flag is defined and defaults to false
- *  • The /policeduty, /cuff, /uncuff, /patrolcar, and /spike commands are registered
- *  • server.lua registers police:dutyChange, police:logCuff, police:logPatrolCar, police:logSpike events
+ *  • The /policeduty, /cuff, /uncuff, /patrolcar, /spike, /fine, /search,
+ *    and /backup commands are registered
+ *  • server.lua registers police:dutyChange, police:logCuff, police:logPatrolCar,
+ *    police:logSpike, police:logFine, police:logSearch, police:logBackup events
  *  • server.lua retrieves the player name for all events
  */
 
@@ -50,6 +54,35 @@ function extractPoliceVehicles(source) {
     }
   }
   return vehicles.length > 0 ? vehicles : null;
+}
+
+/**
+ * Parse the POLICE_PATROL_ZONES table from client.lua.
+ * Returns an array of objects: { name, x, y, z }
+ */
+function extractPatrolZones(source) {
+  const tableMatch = source.match(/local\s+POLICE_PATROL_ZONES\s*=\s*\{([\s\S]+?)\n\}/);
+  if (!tableMatch) return null;
+
+  const zones   = [];
+  const entryRe = /\{[^}]+\}/g;
+  for (const entry of tableMatch[1].matchAll(entryRe)) {
+    const block = entry[0];
+    const name  = (block.match(/name\s*=\s*["']([^"']+)["']/) || [])[1];
+    const x     = (block.match(/x\s*=\s*(-?[\d.]+)/)         || [])[1];
+    const y     = (block.match(/y\s*=\s*(-?[\d.]+)/)         || [])[1];
+    const z     = (block.match(/z\s*=\s*(-?[\d.]+)/)         || [])[1];
+
+    if (name) {
+      zones.push({
+        name,
+        x: x ? parseFloat(x) : undefined,
+        y: y ? parseFloat(y) : undefined,
+        z: z ? parseFloat(z) : undefined,
+      });
+    }
+  }
+  return zones.length > 0 ? zones : null;
 }
 
 /** Extract all RegisterCommand call names from a Lua source string. */
@@ -124,6 +157,35 @@ describe('police', () => {
     });
   });
 
+  // ── POLICE_PATROL_ZONES data table ───────────────────────────────────────
+
+  describe('POLICE_PATROL_ZONES data table', () => {
+    const source = fs.readFileSync(CLIENT_LUA, 'utf8');
+    const zones  = extractPatrolZones(source);
+
+    test('POLICE_PATROL_ZONES table is present in client.lua', () => {
+      assert.ok(zones !== null, 'POLICE_PATROL_ZONES table not found in client.lua');
+    });
+
+    test('POLICE_PATROL_ZONES contains at least one entry', () => {
+      assert.ok(zones.length > 0, 'POLICE_PATROL_ZONES list must not be empty');
+    });
+
+    test('every patrol zone has a non-empty name', () => {
+      const invalid = zones.filter(z => !z.name || z.name.trim() === '');
+      assert.deepEqual(invalid, [], 'Patrol zones with empty name found');
+    });
+
+    test('every patrol zone has numeric x, y, z coordinates', () => {
+      const invalid = zones.filter(z => z.x === undefined || z.y === undefined || z.z === undefined);
+      assert.deepEqual(
+        invalid.map(z => z.name),
+        [],
+        `Patrol zones missing coordinates: ${invalid.map(z => z.name).join(', ')}`
+      );
+    });
+  });
+
   // ── Duty state ───────────────────────────────────────────────────────────
 
   describe('duty state', () => {
@@ -171,6 +233,18 @@ describe('police', () => {
     test('/spike command is registered', () => {
       assert.ok(commands.has('spike'), 'RegisterCommand("spike", ...) not found');
     });
+
+    test('/fine command is registered', () => {
+      assert.ok(commands.has('fine'), 'RegisterCommand("fine", ...) not found');
+    });
+
+    test('/search command is registered', () => {
+      assert.ok(commands.has('search'), 'RegisterCommand("search", ...) not found');
+    });
+
+    test('/backup command is registered', () => {
+      assert.ok(commands.has('backup'), 'RegisterCommand("backup", ...) not found');
+    });
   });
 
   // ── Server-side event handling ───────────────────────────────────────────
@@ -203,6 +277,27 @@ describe('police', () => {
       assert.ok(
         source.includes("'police:logSpike'") || source.includes('"police:logSpike"'),
         "RegisterNetEvent('police:logSpike') not found in server.lua"
+      );
+    });
+
+    test('police:logFine event is registered', () => {
+      assert.ok(
+        source.includes("'police:logFine'") || source.includes('"police:logFine"'),
+        "RegisterNetEvent('police:logFine') not found in server.lua"
+      );
+    });
+
+    test('police:logSearch event is registered', () => {
+      assert.ok(
+        source.includes("'police:logSearch'") || source.includes('"police:logSearch"'),
+        "RegisterNetEvent('police:logSearch') not found in server.lua"
+      );
+    });
+
+    test('police:logBackup event is registered', () => {
+      assert.ok(
+        source.includes("'police:logBackup'") || source.includes('"police:logBackup"'),
+        "RegisterNetEvent('police:logBackup') not found in server.lua"
       );
     });
 
