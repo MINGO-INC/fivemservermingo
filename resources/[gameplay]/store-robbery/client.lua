@@ -9,11 +9,14 @@ local intimidateLevel = 0.0
 
 -- Convenience stores available to rob
 local STORE_LOCATIONS = {
-    { name = "24/7 Vespucci",  x = -706.3,  y = -906.2,  z = 19.2,  reward = 800  },
-    { name = "24/7 Downtown",  x = 24.8,    y = -1346.9, z = 29.5,  reward = 1000 },
-    { name = "Rob's Liquor",   x = -2966.2, y = 385.7,   z = 14.7,  reward = 600  },
-    { name = "Discount Store", x = 1161.3,  y = -322.6,  z = 69.2,  reward = 750  },
-    { name = "Dream On Drugs", x = -1830.0, y = 795.7,   z = 138.4, reward = 900  },
+    { name = "24/7 Vespucci",      x = -706.3,  y = -906.2,  z = 19.2,  reward = 800  },
+    { name = "24/7 Downtown",      x = 24.8,    y = -1346.9, z = 29.5,  reward = 1000 },
+    { name = "Rob's Liquor",       x = -2966.2, y = 385.7,   z = 14.7,  reward = 600  },
+    { name = "Discount Store",     x = 1161.3,  y = -322.6,  z = 69.2,  reward = 750  },
+    { name = "Dream On Drugs",     x = -1830.0, y = 795.7,   z = 138.4, reward = 900  },
+    { name = "24/7 Sandy Shores",  x = 1960.1,  y = 3740.6,  z = 32.3,  reward = 550  },
+    { name = "Paleto Bay Stores",  x = -62.0,   y = 6243.2,  z = 31.1,  reward = 700  },
+    { name = "LSIA Convenience",   x = -1073.7, y = -2724.2, z = 13.8,  reward = 650  },
 }
 
 -- Weapons usable to intimidate (informational — determines fear-gain multiplier)

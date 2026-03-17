@@ -53,3 +53,27 @@ AddEventHandler('police:logSpike', function()
     print(("[Police] %s (id %d) deployed a spike strip"):format(playerName, src))
     logActivity(src, 'police:logSpike', {})
 end)
+
+RegisterNetEvent('police:logFine')
+AddEventHandler('police:logFine', function(targetId, amount)
+    local src        = source
+    local playerName = GetPlayerName(src) or "unknown"
+    print(("[Police] %s (id %d) issued a $%d fine to player id %d"):format(playerName, src, amount, targetId))
+    logActivity(src, 'police:logFine', { target_id = targetId, amount = amount })
+end)
+
+RegisterNetEvent('police:logSearch')
+AddEventHandler('police:logSearch', function(targetId, found)
+    local src        = source
+    local playerName = GetPlayerName(src) or "unknown"
+    print(("[Police] %s (id %d) searched player id %d -- found: %s"):format(playerName, src, targetId, found))
+    logActivity(src, 'police:logSearch', { target_id = targetId, found = found })
+end)
+
+RegisterNetEvent('police:logBackup')
+AddEventHandler('police:logBackup', function(x, y, z)
+    local src        = source
+    local playerName = GetPlayerName(src) or "unknown"
+    print(("[Police] %s (id %d) called for backup at %.1f, %.1f, %.1f"):format(playerName, src, x, y, z))
+    logActivity(src, 'police:logBackup', { x = x, y = y, z = z })
+end)

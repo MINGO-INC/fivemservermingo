@@ -2,7 +2,7 @@ fx_version 'cerulean'
 game 'gta5'
 
 author 'Mingo Server'
-description 'EMS resource: duty toggle, revive, heal, ambulance spawn, triage, and stretcher commands.'
+description 'House robbery resource: case a house, break in, and loot valuables.'
 version '1.0.0'
 
 client_script 'client.lua'
