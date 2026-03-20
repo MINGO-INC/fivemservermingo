@@ -1,0 +1,45 @@
+{
+  "name": "project-recipe",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "dev:game": "vite build --watch --emptyOutDir",
+    "build": "tsc -b && vite build --emptyOutDir",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mui/joy": "^5.0.0-beta.51",
+    "@mui/material": "^6.4.5",
+    "@mui/system": "^6.4.3",
+    "classnames": "^2.5.1",
+    "framer-motion": "^12.4.7",
+    "i18next": "^24.2.2",
+    "i18next-http-backend": "^3.0.2",
+    "react": "19.0.0",
+    "react-dom": "19.0.0",
+    "react-drag-drop-container-typescript": "^1.4.1",
+    "react-i18next": "^15.4.0",
+    "react-icons": "^5.4.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.19.0",
+    "@types/react": "^19.0.8",
+    "@types/react-dom": "^19.0.3",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^9.19.0",
+    "eslint-plugin-react-hooks": "^5.0.0",
+    "eslint-plugin-react-refresh": "^0.4.18",
+    "globals": "^16.0.0",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^3.4.17",
+    "typescript": "~5.7.2",
+    "typescript-eslint": "^8.22.0",
+    "vite": "^6.1.1"
+  }
+}

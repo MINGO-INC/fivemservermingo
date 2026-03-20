@@ -1,0 +1,164 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: "Roboto", system-ui, serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color: white;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@font-face {
+  font-family: "SFMONO";
+  src: url("/fonts/sfmono/SFMonoBold.otf") format("opentype");
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "SFMONO";
+  src: url("/fonts/sfmono/SFMonoLight.otf") format("opentype");
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "SFMONO";
+  src: url("/fonts/sfmono/SFMonoMedium.otf") format("opentype");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "SFMONO";
+  src: url("/fonts/sfmono/SFMonoRegular.otf") format("opentype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Gilroy";
+  src: url("/fonts/gilroy/Gilroy-Regular.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Gilroy";
+  src: url("/fonts/gilroy/Gilroy-Bold.ttf") format("truetype");
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Gilroy";
+  src: url("/fonts/gilroy/Gilroy-Light.ttf") format("truetype");
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Gilroy";
+  src: url("/fonts/gilroy/Gilroy-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Gilroy";
+  src: url("/fonts/gilroy/Gilroy-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+}
+
+html,
+body {
+  height: 100%;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+body > div#root {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 100vh;
+}
+
+div#root > main {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+*::-webkit-scrollbar {
+  width: 2px;
+  height: 2px;
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+  background-color: #444;
+}
+
+@layer base {
+  button {
+    @apply outline-none ring-0;
+  }
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+}
+
+.setting-switch input[type="checkbox"] {
+  appearance: none;
+  height: 24px;
+  width: 51px;
+  background-color: #ff7e881a;
+  border-radius: 2px;
+  position: relative;
+  cursor: pointer;
+  margin-top: 6px;
+}
+
+.setting-switch input[type="checkbox"]::before {
+  content: "";
+  display: block;
+  height: 18px;
+  width: 18px;
+  transform: translate(-50%, -50%);
+  position: absolute;
+  top: 50%;
+  left: calc(1.5em / 2);
+  border-radius: 0.2em;
+  transition: left 0.3s ease;
+  background: radial-gradient(
+    95.45% 95.45% at 50% 50%,
+    rgba(255, 100, 100, 0.77) 0%,
+    rgba(255, 100, 100, 0) 100%
+  );
+}
+
+.setting-switch input[type="checkbox"]:checked::before {
+  left: calc(100% - (1.5em / 2));
+  background: radial-gradient(
+    120.83% 120.83% at 50% 50%,
+    #1ee8b6 0%,
+    rgba(30, 232, 182, 0) 100%
+  );
+}
+
+.setting-switch input[type="checkbox"]:checked {
+  background: rgba(32, 132, 109, 0.29);
+}
